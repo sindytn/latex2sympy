@@ -444,16 +444,25 @@ def handle_integral(func):
 
 def handle_sum_or_prod(func, name):
     val      = convert_mp(func.mp())
-    iter_var = convert_expr(func.subeq().equality().expr(0))
-    start    = convert_expr(func.subeq().equality().expr(1))
-    if func.supexpr().expr(): # ^{expr}
-        end = convert_expr(func.supexpr().expr())
-    else: # ^atom
-        end = convert_atom(func.supexpr().atom())
-        
-
+    iter_var = None
+    start = None
+    if func.subeq():                                                # e.g. _{i=0}
+        iter_var = convert_expr(func.subeq().equality().expr(0))
+        start    = convert_expr(func.subeq().equality().expr(1))
+    elif func.subexpr().expr():                                     # _{expr}
+        iter_var = convert_expr(func.subexpr().expr())
+    else:                                                           # _atom
+        iter_var = convert_atom(func.subexpr().atom())
+    if func.supexpr():
+        if func.supexpr().expr():                                   # ^{expr}
+            end = convert_expr(func.supexpr().expr())
+        else:                                                       # ^atom
+            end = convert_atom(func.supexpr().atom())
     if name == "summation":
-        return sympy.Sum(val, (iter_var, start, end))
+        if start is not None:
+            return sympy.Sum(val, (iter_var, start, end))
+        else:
+            return sympy.Function('sum_{'+ str(iter_var) +'}')(val)
     elif name == "product":
         return sympy.Product(val, (iter_var, start, end))
 

@@ -190,7 +190,7 @@ func:
     L_BRACE base=expr R_BRACE
 
     | (FUNC_SUM | FUNC_PROD)
-    (subeq supexpr | supexpr subeq)
+    (subeq supexpr | supexpr subeq | subeq | subexpr)
     mp
     | FUNC_LIM limit_sub mp;
 
